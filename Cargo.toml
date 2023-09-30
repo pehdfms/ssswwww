@@ -9,3 +9,4 @@ edition = "2021"
 anyhow = "1.0.72"
 clap = { version = "4.3.19", features = ["derive"] }
 humantime = "2.1.0"
+rand = "0.8.5"

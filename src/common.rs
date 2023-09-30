@@ -1,10 +1,18 @@
 use std::{fs, path::PathBuf};
 
 use anyhow::{bail, Result};
+use clap::ValueEnum;
 
 const VALID_EXTENSIONS: [&str; 10] = [
     "jpg", "jpeg", "png", "gif", "pnm", "tga", "tiff", "webp", "bmp", "farbfeld",
 ];
+
+#[derive(Debug, Default, Clone, ValueEnum)]
+pub enum ImageOrder {
+    #[default]
+    Alphabetical,
+    Random,
+}
 
 pub struct Wallpaper {
     path: PathBuf,

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::{bail, Result};
 use clap::{Args, Parser};
-use common::WallpaperDirectory;
+use common::{ImageOrder, WallpaperDirectory};
 use daemon::{TransitionOptions, TransitionType};
 use humantime::Duration;
 use manager::{TimerOptions, WallpaperManager};
@@ -38,6 +38,9 @@ struct Cli {
 
     #[command(flatten)]
     timer_args: TimerArgs,
+
+    #[arg(long, short)]
+    order: Option<ImageOrder>,
 }
 
 fn main() -> Result<()> {
@@ -54,12 +57,17 @@ fn main() -> Result<()> {
     let manager = WallpaperManager::new()?;
 
     if path.is_file() {
+        if cli.order.is_some() {
+            println!("Warn: Order argument is only available when watching wallpaper folders");
+        }
+
         let wallpaper = Wallpaper::new(path)?;
         manager.set_wallpaper(&wallpaper);
     } else {
         let directory = WallpaperDirectory::new(path)?;
         let transition_args = cli.transition_args;
         let timer_args = cli.timer_args;
+        let order = cli.order.unwrap_or_default();
 
         manager.watch_wallpaper_folder(
             &directory,
@@ -70,6 +78,7 @@ fn main() -> Result<()> {
             TimerOptions {
                 timer: timer_args.timer.map(|duration| duration.into()),
             },
+            order,
         );
     }
 

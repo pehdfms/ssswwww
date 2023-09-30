@@ -1,9 +1,10 @@
+use rand::seq::SliceRandom;
 use std::{thread, time::Duration};
 
 use anyhow::Result;
 
 use crate::{
-    common::{Wallpaper, WallpaperDirectory},
+    common::{ImageOrder, Wallpaper, WallpaperDirectory},
     daemon::{TransitionOptions, WallpaperDaemon},
 };
 
@@ -31,16 +32,27 @@ impl WallpaperManager {
         directory: &WallpaperDirectory,
         transition_options: TransitionOptions,
         timer_options: TimerOptions,
+        order: ImageOrder,
     ) {
         loop {
-            let wallpapers = directory.get_wallpapers();
-            wallpapers.iter().for_each(|wallpaper| {
-                self.daemon.set_wallpaper(wallpaper, &transition_options);
+            let mut wallpapers = directory.get_wallpapers();
+            match order {
+                ImageOrder::Alphabetical => (),
+                ImageOrder::Random => wallpapers.shuffle(&mut rand::thread_rng()),
+            };
 
-                if let Some(timer) = timer_options.timer {
-                    thread::sleep(timer)
-                }
-            });
+            if let Some(timer) = timer_options.timer {
+                wallpapers.iter().for_each(|wallpaper| {
+                    self.daemon.set_wallpaper(wallpaper, &transition_options);
+
+                    if let Some(timer) = timer_options.timer {
+                        thread::sleep(timer)
+                    }
+                });
+            } else {
+                self.daemon
+                    .set_wallpaper(&wallpapers[0], &transition_options);
+            }
         }
     }
 }
