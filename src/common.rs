@@ -2,8 +2,8 @@ use std::{fs, path::PathBuf};
 
 use anyhow::{bail, Result};
 
-static VALID_EXTENSIONS: [&str; 9] = [
-    "jpeg", "png", "gif", "pnm", "tga", "tiff", "webp", "bmp", "farbfeld",
+const VALID_EXTENSIONS: [&str; 10] = [
+    "jpg", "jpeg", "png", "gif", "pnm", "tga", "tiff", "webp", "bmp", "farbfeld",
 ];
 
 pub struct Wallpaper {
@@ -12,10 +12,7 @@ pub struct Wallpaper {
 
 impl Wallpaper {
     pub fn new(path: PathBuf) -> Result<Wallpaper> {
-        let error_start = format!(
-            "Tried to create wallpaper from path {}, ",
-            path.display()
-        );
+        let error_start = format!("Tried to create wallpaper from path {}, ", path.display());
 
         if !path.is_file() {
             bail!(error_start + "but it was not a file.")
